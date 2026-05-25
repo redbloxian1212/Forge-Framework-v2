@@ -4,7 +4,7 @@ local Container = {}
 Container.__index = Container
 
 export type ServiceDef<T> = {
-	create: (container: any) -> T,
+	create: () -> T,
 }
 
 export type ContainerType = {
@@ -63,7 +63,7 @@ function Container.Resolve<T>(self: ContainerType, def: ServiceDef<T>): T
 	end
 
 	self._resolving[def] = true
-	local instance = def.create(self)
+	local instance = def.create()
 	self._resolving[def] = nil
 
 	self._registry[def] = instance
