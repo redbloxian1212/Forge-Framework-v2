@@ -11,11 +11,17 @@
         "Client": {
           "$path": "src/client"
         }
+      },
+      "Packages": {
+        "$path": "Packages"
       }
     },
     "ServerScriptService": {
       "Forge": {
         "$path": "src/server"
+      },
+      "Packages": {
+        "$path": "ServerPackages"
       }
     },
     "StarterPlayer": {

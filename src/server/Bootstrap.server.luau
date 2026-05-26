@@ -14,7 +14,5 @@ local ServicesFolder = ServerScriptService.Forge.Services
 
 local core = Container.build()
 
-core:Resolve(require(ServicesFolder.Template))
-
 core:Init()
 core:Start()

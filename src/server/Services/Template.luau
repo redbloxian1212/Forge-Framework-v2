@@ -7,18 +7,13 @@ local Container = require(ReplicatedStorage.Forge.Shared.Core.Container)
 local Template = {}
 Template.__index = Template
 
---[=[
-    Define internal fields: methods, properties and dependencies.
-]=]
-type Fields = {}
-
-export type Template = typeof(setmetatable({} :: Fields, Template))
+export type Template = typeof(setmetatable({}, Template))
 
 --[=[
     Very important! This is how the container creates an instance of the service.
 ]=]
 function Template.create(): Template
-	local self = setmetatable({} :: Fields, Template)
+	local self = setmetatable({}, Template)
 	return self
 end
 
