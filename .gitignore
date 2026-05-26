@@ -10,4 +10,7 @@ sourcemap.json
 # Packages
 Packages
 ServerPackages
+
+# Dev stuff
 TODO.txt
+.qodo
