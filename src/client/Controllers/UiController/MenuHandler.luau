@@ -13,30 +13,12 @@
 ------------------------------
 -- SERVICES --
 ------------------------------
-local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
 ------------------------------
--- LOCAL --
+-- PRIVATE --
 ------------------------------
-local player = Players.LocalPlayer
-local playerGui = player.PlayerGui
-
-------------------------------
--- UI REFERENCES --
-------------------------------
-local mainGui = playerGui:WaitForChild("Main")
-local menuFolder = mainGui:WaitForChild("Menus")
-
-------------------------------
--- STATE --
-------------------------------
-local origMenuSizes: { [string]: UDim2 } = {}
-local currentMenu: Frame?
-
-local blurEffect: BlurEffect
-
-local function setBlur(blurSize: number, duration: number)
+local function setBlur(blurEffect: BlurEffect, blurSize: number, duration: number)
 	local tween = TweenService:Create(blurEffect, TweenInfo.new(duration), { Size = blurSize })
 	tween:Play()
 end
@@ -47,40 +29,59 @@ local function setCamFov(fov: number, duration: number)
 end
 
 local MenuHandler = {}
+MenuHandler.__index = MenuHandler
 
-function MenuHandler:Init(_controllers) end
+export type MenuHandler = typeof(setmetatable(
+	{} :: {
+		_menuFolder: Instance,
+		_origMenuSizes: { [string]: UDim2 },
+		_currentMenu: Frame?,
+		_blurEffect: BlurEffect?,
+	},
+	MenuHandler
+))
 
-function MenuHandler:Start()
-	for _, menu in menuFolder:GetChildren() do
+function MenuHandler.create(menuFolder: Instance)
+	return setmetatable({
+		_menuFolder = menuFolder,
+		_origMenuSizes = {} :: { [string]: UDim2 },
+		_currentMenu = nil :: Frame?,
+		_blurEffect = nil :: BlurEffect?,
+	}, MenuHandler)
+end
+
+function MenuHandler.Start(self: MenuHandler)
+	for _, menu in self._menuFolder:GetChildren() do
 		if not (menu:IsA("Frame") or menu:IsA("ImageLabel")) then
 			warn(`[MenuHandler] Menu '{menu.Name}' is not a Frame or an ImageLabel!`)
 			continue
 		end
 
-		assert(not origMenuSizes[menu.Name], `Menu '{menu.Name}' already initialized`)
+		assert(not self._origMenuSizes[menu.Name], `Menu '{menu.Name}' already initialized`)
 
-		origMenuSizes[menu.Name] = menu.Size
+		self._origMenuSizes[menu.Name] = menu.Size
 	end
 
-	blurEffect = Instance.new("BlurEffect")
+	local blurEffect = Instance.new("BlurEffect")
 	blurEffect.Name = "MenuBlur"
 	blurEffect.Size = 0
 	blurEffect.Parent = game.Lighting
+	self._blurEffect = blurEffect
 end
 
-function MenuHandler:OpenMenu(menuName: string)
-	if currentMenu then
+function MenuHandler.OpenMenu(self: MenuHandler, menuName: string)
+	if self._currentMenu then
 		self:CloseCurrentMenu()
 	end
 
-	local menu = menuFolder:FindFirstChild(menuName)
+	local menu = self._menuFolder:FindFirstChild(menuName) :: Frame
 	if not menu then
 		warn(`[MenuHandler] Menu '{menuName}' not found!`)
 		return
 	end
 
-	currentMenu = menu
-	local origSize = origMenuSizes[menuName]
+	self._currentMenu = menu :: Frame
+	local origSize = self._origMenuSizes[menuName]
 
 	-- Start small at its current anchored location
 	menu.Size = UDim2.fromScale(0, 0)
@@ -88,17 +89,17 @@ function MenuHandler:OpenMenu(menuName: string)
 
 	TweenService:Create(menu, TweenInfo.new(0.20, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = origSize })
 		:Play()
-	setBlur(20, 0.25)
+	setBlur(self._blurEffect :: BlurEffect, 20, 0.25)
 	setCamFov(45, 0.2)
 end
 
-function MenuHandler:CloseCurrentMenu()
-	if not currentMenu then
+function MenuHandler.CloseCurrentMenu(self: MenuHandler)
+	if not self._currentMenu then
 		return
 	end
 
-	local menuToClose = currentMenu
-	currentMenu = nil -- Instantly clear state so it doesn't block opening another menu
+	local menuToClose = self._currentMenu
+	self._currentMenu = nil -- Instantly clear state so it doesn't block opening another menu
 
 	-- Tween back to 0
 	local tween = TweenService:Create(
@@ -107,19 +108,19 @@ function MenuHandler:CloseCurrentMenu()
 		{ Size = UDim2.fromScale(0, 0) }
 	)
 	tween:Play()
-	setBlur(0, 0.25)
+	setBlur(self._blurEffect :: BlurEffect, 0, 0.25)
 	setCamFov(70, 0.2)
 
 	tween.Completed:Once(function()
 		-- Only hide if the user didn't instantly reopen this exact menu during the animation
-		if currentMenu ~= menuToClose then
+		if self._currentMenu ~= menuToClose then
 			menuToClose.Visible = false
 		end
 	end)
 end
 
-function MenuHandler:GetCurrentMenu()
-	return currentMenu
+function MenuHandler.GetCurrentMenu(self: MenuHandler)
+	return self._currentMenu
 end
 
 return MenuHandler

@@ -1,58 +1,55 @@
---!strict
-
-------------------------------
--- SERVICES --
-------------------------------
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-------------------------------
--- TYPES --
-------------------------------
-local ClientTypes = ReplicatedStorage.Forge.Client.Types
-local ControllerTypes = require(ClientTypes.ControllerTypes)
-
-------------------------------
--- DEPENDENCIES --
-------------------------------
-local Controllers: ControllerTypes.ControllerTypes
+local Container = require(game:GetService("ReplicatedStorage").Forge.Shared.Core.Container)
 
 ------------------------------
 -- HANDLERS --
 ------------------------------
 local MenuHandler = require("@self/MenuHandler")
-local HudHandler = require("@self/HudHandler")
 
-local UiController = {} :: ControllerTypes.UiController
+local UiController = {}
+UiController.__index = UiController
 
-function UiController:Init(controllers)
-	Controllers = controllers
+export type UiController = typeof(setmetatable(
+	{} :: {
+		_menuHandler: MenuHandler.MenuHandler,
+	},
+	UiController
+))
 
-	MenuHandler:Init(controllers)
-	HudHandler:Init(controllers)
+function UiController.create()
+	return setmetatable(
+		{} :: {
+			_menuHandler: MenuHandler.MenuHandler,
+		},
+		UiController
+	)
 end
 
-function UiController:Start()
-	MenuHandler:Start()
-	HudHandler:Start()
+function UiController.Init(self: UiController, container: Container.ContainerType)
+	local player = game:GetService("Players").LocalPlayer
+	local menuFolder = player.PlayerGui:WaitForChild("Main"):WaitForChild("Menus")
+	self._menuHandler = MenuHandler.create(menuFolder)
 end
 
-function UiController:OpenMenu(menuName: string)
-	local curMenu = MenuHandler:GetCurrentMenu()
+function UiController.Start(self: UiController)
+	self._menuHandler:Start()
+end
+
+function UiController.OpenMenu(self: UiController, menuName: string)
+	local curMenu = self._menuHandler:GetCurrentMenu()
 	if curMenu and curMenu.Name == menuName then
-		MenuHandler:CloseCurrentMenu()
+		self._menuHandler:CloseCurrentMenu()
 		return
 	end
 
-	Controllers.TrollController:CloseMenu()
-	MenuHandler:OpenMenu(menuName)
+	self._menuHandler:OpenMenu(menuName)
 end
 
-function UiController:CloseCurrentMenu()
-	MenuHandler:CloseCurrentMenu()
+function UiController.CloseCurrentMenu(self: UiController)
+	self._menuHandler:CloseCurrentMenu()
 end
 
-function UiController:GetCurrentMenu()
-	return MenuHandler:GetCurrentMenu()
+function UiController.GetCurrentMenu(self: UiController)
+	return self._menuHandler:GetCurrentMenu()
 end
 
 return UiController
