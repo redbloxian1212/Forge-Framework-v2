@@ -14,7 +14,7 @@ local ProfileStore = require(ServerScriptService.Packages.ProfileStore)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 
 -- CONFIG
-local PlayerDataTemplate = require(ServerScriptService.Forge.Config.PlayerDataTemplate)
+local PlayerDataTemplate = require(ReplicatedStorage.Forge.Shared.Config.PlayerDataTemplate)
 
 -- TYPES
 export type PlayerData = typeof(PlayerDataTemplate)

@@ -8,6 +8,11 @@ version = "4.0.0"
 dependencies = []
 
 [[package]]
+name = "ffrostflame/bytenet"
+version = "0.4.6"
+dependencies = []
+
+[[package]]
 name = "howmanysmall/janitor"
 version = "1.18.3"
 dependencies = [["Promise", "howmanysmall/typed-promise@4.0.6"]]
@@ -30,4 +35,4 @@ dependencies = []
 [[package]]
 name = "src/forge-framework-v2"
 version = "0.1.0"
-dependencies = [["Janitor", "howmanysmall/janitor@1.18.3"], ["Signal", "sleitnick/signal@2.0.3"], ["ProfileStore", "lm-loleris/profilestore@1.0.3"]]
+dependencies = [["Bytenet", "ffrostflame/bytenet@0.4.6"], ["Janitor", "howmanysmall/janitor@1.18.3"], ["Signal", "sleitnick/signal@2.0.3"], ["ProfileStore", "lm-loleris/profilestore@1.0.3"]]

@@ -52,6 +52,7 @@ function DataService.create(): DataService
 end
 
 function DataService.Init(self: DataService, container: any)
+	self.DataPaths = require(ReplicatedStorage.Forge.Shared.Config.DataPaths)
 	self.OnProfileLoaded = Signal.new()
 	self.OnProfileUnloading = Signal.new()
 
