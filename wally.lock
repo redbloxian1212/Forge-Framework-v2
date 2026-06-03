@@ -35,4 +35,4 @@ dependencies = []
 [[package]]
 name = "src/forge-framework-v2"
 version = "0.1.0"
-dependencies = [["Bytenet", "ffrostflame/bytenet@0.4.6"], ["Janitor", "howmanysmall/janitor@1.18.3"], ["Signal", "sleitnick/signal@2.0.3"], ["ProfileStore", "lm-loleris/profilestore@1.0.3"]]
+dependencies = [["Bytenet", "ffrostflame/bytenet@0.4.6"], ["Janitor", "howmanysmall/janitor@1.18.3"], ["Promise", "evaera/promise@4.0.0"], ["Signal", "sleitnick/signal@2.0.3"], ["ProfileStore", "lm-loleris/profilestore@1.0.3"]]
