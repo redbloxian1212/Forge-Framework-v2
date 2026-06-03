@@ -67,10 +67,12 @@ function Container.Resolve<T>(self: ContainerType, def: ServiceDef<T>): T
 	self._resolving[def] = nil
 
 	self._registry[def] = instance
+
 	table.insert(self._queue, def)
 
 	if self._initing then
 		Container._initService(self, def)
+		Container._run(self, def, "Start")
 	end
 
 	return instance
