@@ -12,6 +12,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ProfileManager = require(ServerScriptService.Forge.Core.ProfileManager)
 local Replica = require(ReplicatedStorage.Forge.Shared.Vendor.ReplicaServer)
 local Signal = require(ReplicatedStorage.Packages.Signal)
+local Promise = require(ReplicatedStorage.Packages.Promise)
 
 ------------------------------
 -- UTILITIES --
@@ -87,6 +88,44 @@ function DataService.Start(self: DataService)
 			PlayerDataChanged[player] = nil
 		end
 		self.OnProfileUnloading:Fire(player)
+	end)
+end
+
+function DataService.GetDataAsync(self: DataService, player: Player): any
+	if PlayerReplicas[player] then
+		return Promise.resolve(PlayerReplicas[player].Data)
+	end
+
+	return Promise.new(function(resolve, reject, onCancel)
+		local profileConnection: any
+		local unloadConnection: any
+
+		local function Cleanup()
+			if profileConnection then
+				profileConnection:Disconnect()
+			end
+			if unloadConnection then
+				unloadConnection:Disconnect()
+			end
+		end
+
+		profileConnection = self.OnProfileLoaded:Connect(function(loadedPlayer: Player, profileData: PlayerData)
+			if loadedPlayer ~= player then
+				return
+			end
+			Cleanup()
+			resolve(profileData)
+		end)
+
+		unloadConnection = self.OnProfileUnloading:Connect(function(unloadedPlayer: Player)
+			if unloadedPlayer ~= player then
+				return
+			end
+			Cleanup()
+			reject(`[DataService] Player {player.Name} left before profile loaded`)
+		end)
+
+		onCancel(Cleanup)
 	end)
 end
 
