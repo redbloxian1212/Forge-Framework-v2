@@ -55,7 +55,7 @@ export type DataController = typeof(setmetatable(
 	DataController
 ))
 
-function DataController.create()
+function DataController.create(): DataController
 	return setmetatable({
 		_playerReplica = nil :: any,
 		OnDataReady = Signal.new(),
