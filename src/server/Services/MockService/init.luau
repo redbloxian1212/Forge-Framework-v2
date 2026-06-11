@@ -5,7 +5,7 @@ MockService.__index = MockService
 
 export type MockService = typeof(setmetatable({}, MockService))
 
-function MockService.create()
+function MockService.create(): MockService
 	return setmetatable({}, MockService)
 end
 
