@@ -48,15 +48,14 @@ DataController.__index = DataController
 export type DataController = typeof(setmetatable({}, DataController))
 
 function DataController.create(): DataController
-	return setmetatable({
-		_playerReplica = nil :: any,
-		OnDataReady = Signal.new(),
-		OnDataChanged = Signal.new(),
-		DataPaths = DataPaths,
-	}, DataController)
+	return setmetatable({}, DataController)
 end
 
 function DataController.Init(self: DataController, container: Container.ContainerType)
+	self._playerReplica = nil :: any
+	self.OnDataReady = Signal.new()
+	self.OnDataChanged = Signal.new()
+	self.DataPaths = DataPaths
 	self.DataPaths = require(ReplicatedStorage.Forge.Shared.Config.DataPaths)
 end
 
