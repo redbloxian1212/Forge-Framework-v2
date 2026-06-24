@@ -22,7 +22,7 @@
     DataPaths would look like this:
 
     {   
-        Cash = "Cash",
+        Cash = {"Cash"},
         Inventory = {
             Swords = {"Inventory", "Swords"},
             Armor = {"Inventory", "Armor"},
