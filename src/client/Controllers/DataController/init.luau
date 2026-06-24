@@ -45,15 +45,7 @@ end
 local DataController = {}
 DataController.__index = DataController
 
-export type DataController = typeof(setmetatable(
-	{} :: {
-		_playerReplica: any,
-		OnDataReady: typeof(Signal.new()),
-		OnDataChanged: typeof(Signal.new()),
-		DataPaths: typeof(DataPaths),
-	},
-	DataController
-))
+export type DataController = typeof(setmetatable({}, DataController))
 
 function DataController.create(): DataController
 	return setmetatable({
