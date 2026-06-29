@@ -1,4 +1,5 @@
 --[=[
+    @desc: Client's event paths
     @usage:
 
     {
