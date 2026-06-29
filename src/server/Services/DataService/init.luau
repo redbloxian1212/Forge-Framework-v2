@@ -57,6 +57,8 @@ function DataService.Init(self: DataService, container: any)
 	self.OnProfileLoaded = Signal.new()
 	self.OnProfileUnloading = Signal.new()
 
+	self.OnStatChanged = Signal.new()
+
 	ProfileManager.Start()
 end
 
@@ -154,13 +156,14 @@ function DataService.GetStat(self: DataService, player: Player, path: { string }
 	return current
 end
 
-function DataService.SetData(_self: DataService, player: Player, path: { string }, value: any): boolean
+function DataService.SetData(self: DataService, player: Player, path: { string }, value: any): boolean
 	local replica = PlayerReplicas[player]
 	local signal = PlayerDataChanged[player]
 	if not replica or not signal then
 		return false
 	end
 
+	self.OnStatChanged:Fire(player, path, value)
 	replica:Set(path, value)
 	signal:Fire(path, value)
 
