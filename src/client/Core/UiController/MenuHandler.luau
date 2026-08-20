@@ -19,35 +19,26 @@ local TweenService = game:GetService("TweenService")
 -- PRIVATE --
 ------------------------------
 local function setBlur(blurEffect: BlurEffect, blurSize: number, duration: number)
-	local tween = TweenService:Create(blurEffect, TweenInfo.new(duration), { Size = blurSize })
-	tween:Play()
+	TweenService:Create(blurEffect, TweenInfo.new(duration), { Size = blurSize }):Play()
 end
 
 local function setCamFov(fov: number, duration: number)
-	local tween = TweenService:Create(workspace.CurrentCamera, TweenInfo.new(duration), { FieldOfView = fov })
-	tween:Play()
+	TweenService:Create(workspace.CurrentCamera, TweenInfo.new(duration), { FieldOfView = fov }):Play()
 end
 
 local MenuHandler = {}
 MenuHandler.__index = MenuHandler
 
-export type MenuHandler = typeof(setmetatable(
-	{} :: {
-		_menuFolder: Instance,
-		_origMenuSizes: { [string]: UDim2 },
-		_currentMenu: Frame?,
-		_blurEffect: BlurEffect?,
-	},
-	MenuHandler
-))
+export type MenuHandler = typeof(setmetatable({}, MenuHandler))
 
-function MenuHandler.create(menuFolder: Instance)
-	return setmetatable({
-		_menuFolder = menuFolder,
-		_origMenuSizes = {} :: { [string]: UDim2 },
-		_currentMenu = nil :: Frame?,
-		_blurEffect = nil :: BlurEffect?,
-	}, MenuHandler)
+function MenuHandler.create()
+	return setmetatable({}, MenuHandler)
+end
+
+function MenuHandler.Init(self: MenuHandler, menuFolder: Instance)
+	assert(typeof(menuFolder) == "Instance" and menuFolder:IsA("Folder"), "bad menuFolder!")
+
+	self._menuFolder = menuFolder
 end
 
 function MenuHandler.Start(self: MenuHandler)
@@ -57,15 +48,20 @@ function MenuHandler.Start(self: MenuHandler)
 			continue
 		end
 
-		assert(not self._origMenuSizes[menu.Name], `Menu '{menu.Name}' already initialized`)
+		if menu:FindFirstChildOfClass("UIScale") then
+			continue
+		end
 
-		self._origMenuSizes[menu.Name] = menu.Size
+		local uiScale = Instance.new("UIScale")
+		uiScale.Scale = 0
+		uiScale.Parent = menu
+		menu.Visible = false
 	end
 
 	local blurEffect = Instance.new("BlurEffect")
 	blurEffect.Name = "MenuBlur"
 	blurEffect.Size = 0
-	blurEffect.Parent = game.Lighting
+	blurEffect.Parent = game:GetService("Lighting")
 	self._blurEffect = blurEffect
 end
 
@@ -80,17 +76,22 @@ function MenuHandler.OpenMenu(self: MenuHandler, menuName: string)
 		return
 	end
 
-	self._currentMenu = menu :: Frame
-	local origSize = self._origMenuSizes[menuName]
+	self._currentMenu = menu
 
-	-- Start small at its current anchored location
-	menu.Size = UDim2.fromScale(0, 0)
+	local uiScale = menu:FindFirstChildOfClass("UIScale") :: UIScale
+
+	if not uiScale then
+		uiScale = Instance.new("UIScale")
+		uiScale.Parent = menu
+	end
+
+	uiScale.Scale = 0
 	menu.Visible = true
 
-	TweenService:Create(menu, TweenInfo.new(0.20, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = origSize })
+	TweenService:Create(uiScale, TweenInfo.new(0.20, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Scale = 1 })
 		:Play()
 	setBlur(self._blurEffect :: BlurEffect, 20, 0.25)
-	setCamFov(45, 0.2)
+	setCamFov(65, 0.2)
 end
 
 function MenuHandler.CloseCurrentMenu(self: MenuHandler)
@@ -99,20 +100,16 @@ function MenuHandler.CloseCurrentMenu(self: MenuHandler)
 	end
 
 	local menuToClose = self._currentMenu
-	self._currentMenu = nil -- Instantly clear state so it doesn't block opening another menu
+	self._currentMenu = nil
 
-	-- Tween back to 0
-	local tween = TweenService:Create(
-		menuToClose,
-		TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
-		{ Size = UDim2.fromScale(0, 0) }
-	)
+	local uiScale = menuToClose:FindFirstChildOfClass("UIScale") :: UIScale
+	local tween =
+		TweenService:Create(uiScale, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Scale = 0 })
 	tween:Play()
 	setBlur(self._blurEffect :: BlurEffect, 0, 0.25)
 	setCamFov(70, 0.2)
 
 	tween.Completed:Once(function()
-		-- Only hide if the user didn't instantly reopen this exact menu during the animation
 		if self._currentMenu ~= menuToClose then
 			menuToClose.Visible = false
 		end

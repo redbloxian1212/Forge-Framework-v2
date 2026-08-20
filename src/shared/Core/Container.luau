@@ -39,20 +39,6 @@ function Container.build(): ContainerType
 	}, Container) :: any
 end
 
---[=[
-    Resolves a service, obviously.
-
-    Pass the value returned from requiring the module
-
-    Usage:
-        local instance = container:Resolve(require(SomeModule))
-
-    Lifecycle:
-    - If called before Init, the service is queued and Init will be called on it later.
-    - If called during Init (from within another service's Init), the service is
-      immediately initialized so the caller gets a ready instance.
-    - Cannot be called after Start.
-]=]
 function Container.Resolve<T>(self: ContainerType, def: ServiceDef<T>): T
 	assert(not self._destroyed, `Cannot resolve "{tostring(def)}" after Destroy!`)
 	assert(not self._started, `Cannot resolve "{tostring(def)}" after Start!`)
@@ -91,23 +77,6 @@ function Container._initService(self: ContainerType, def: any)
 	self._states[def] = "Initialized"
 end
 
---[=[
-    Runs a lifecycle method on a resolved service.
-
-    Init:
-    - Synchronous
-    - Resolve your dependencies here
-    - Do NOT run logic or yield here, that belongs in Start
-
-    Start:
-    - Asynchronous (spawned via task.spawn)
-    - All services are guaranteed to be resolved before this runs
-    - Safe for logic, event connections, firing events, yielding etc.
-
-    Destroy:
-    - Synchronous
-    - Called in reverse resolution order
-]=]
 function Container:_run(def: any, method: "Init" | "Start" | "Destroy")
 	local service = self._registry[def]
 	if not service then
@@ -131,14 +100,6 @@ function Container:_run(def: any, method: "Init" | "Start" | "Destroy")
 	end
 end
 
---[=[
-    Calls :Init() on all queued services in resolution order.
-
-    - Synchronous
-    - New services resolved during Init are immediately initialized
-      (handled via the _initing flag + dynamic queue walk)
-    - Must be called before Start
-]=]
 function Container.Init(self: ContainerType)
 	assert(not self._destroyed, "Already destroyed!")
 	assert(not self._initing, "Already initializing!")
@@ -153,13 +114,6 @@ function Container.Init(self: ContainerType)
 	self._initing = false
 end
 
---[=[
-    Calls :Start() on all queued services in resolution order.
-
-    - Each Start runs in its own task.spawn (non-blocking)
-    - All Init calls are guaranteed complete before any Start runs
-    - No new services may be resolved after this point
-]=]
 function Container.Start(self: ContainerType)
 	assert(not self._destroyed, "Already destroyed!")
 	assert(not self._initing, "Still initializing!")
@@ -172,13 +126,6 @@ function Container.Start(self: ContainerType)
 	end
 end
 
---[=[
-    Destroys all services in reverse resolution order (LIFO).
-
-    - Synchronous
-    - Safe to call multiple times
-    - Clears registry and queue after teardown
-]=]
 function Container.Destroy(self: ContainerType)
 	if self._destroyed then
 		return
