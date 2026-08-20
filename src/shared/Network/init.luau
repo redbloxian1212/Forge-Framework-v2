@@ -1,3 +1,5 @@
-return table.freeze({
-	Standard = require("@self/Standard"),
-})
+--[[
+	Meant to store ByteNet namespaces.
+]]
+
+return table.freeze({})
