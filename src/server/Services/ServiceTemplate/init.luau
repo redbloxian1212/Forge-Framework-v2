@@ -1,3 +1,7 @@
+--[=[
+	Template for Services.
+]=]
+
 local Container = require(game:GetService("ReplicatedStorage").Forge.Shared.Core.Container)
 
 local MockService = {}

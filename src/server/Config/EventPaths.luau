@@ -1,5 +1,5 @@
 --[=[
-    @desc: Server's event paths
+    @desc: Server's event paths for EventBus
     @usage:
 
     {
