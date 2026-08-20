@@ -15,3 +15,5 @@ local core = Container.build()
 
 core:Init()
 core:Start()
+
+print(`Running ForgeV2 🔨`)
