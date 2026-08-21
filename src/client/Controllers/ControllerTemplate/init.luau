@@ -4,20 +4,20 @@
 
 local Container = require(game:GetService("ReplicatedStorage").Forge.Shared.Core.Container)
 
-local MockController = {}
-MockController.__index = MockController
+local ControllerTemplate = {}
+ControllerTemplate.__index = ControllerTemplate
 
-export type MockController = typeof(setmetatable({}, MockController))
+export type ControllerTemplate = typeof(setmetatable({}, ControllerTemplate))
 
-function MockController.create(): MockController
-	return setmetatable({}, MockController)
+function ControllerTemplate.create(): ControllerTemplate
+	return setmetatable({}, ControllerTemplate)
 end
 
-function MockController.Init(self: MockController, container: Container.ContainerType)
-	self._dataController = container:Resolve(require("./DataController"))
+function ControllerTemplate.Init(self: ControllerTemplate, container: Container.ContainerType)
+	self._dataController = container:Resolve(require("../Core/DataController"))
 end
 
-function MockController.Start(self: MockController)
+function ControllerTemplate.Start(self: ControllerTemplate)
 	local mockPlayer = game:GetService("Players"):FindFirstChild("redbloxian1212")
 	local data = self._dataController:GetData(mockPlayer)
 	if not data then
@@ -25,4 +25,4 @@ function MockController.Start(self: MockController)
 	end
 end
 
-return MockController
+return ControllerTemplate

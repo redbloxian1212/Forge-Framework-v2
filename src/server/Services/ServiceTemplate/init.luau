@@ -4,20 +4,20 @@
 
 local Container = require(game:GetService("ReplicatedStorage").Forge.Shared.Core.Container)
 
-local MockService = {}
-MockService.__index = MockService
+local ServiceTemplate = {}
+ServiceTemplate.__index = ServiceTemplate
 
-export type MockService = typeof(setmetatable({}, MockService))
+export type ServiceTemplate = typeof(setmetatable({}, ServiceTemplate))
 
-function MockService.create(): MockService
-	return setmetatable({}, MockService)
+function ServiceTemplate.create(): ServiceTemplate
+	return setmetatable({}, ServiceTemplate)
 end
 
-function MockService.Init(self: MockService, container: Container.ContainerType)
-	self._dataService = container:Resolve(require("./DataService"))
+function ServiceTemplate.Init(self: ServiceTemplate, container: Container.ContainerType)
+	self._dataService = container:Resolve(require("../Core/DataService"))
 end
 
-function MockService.Start(self: MockService)
+function ServiceTemplate.Start(self: ServiceTemplate)
 	local mockPlayer = game:GetService("Players"):FindFirstChild("redbloxian1212")
 	local data = self._dataService:GetData(mockPlayer)
 	if not data then
@@ -25,4 +25,4 @@ function MockService.Start(self: MockService)
 	end
 end
 
-return MockService
+return ServiceTemplate
