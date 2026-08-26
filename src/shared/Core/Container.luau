@@ -7,10 +7,21 @@ export type ServiceDef<T> = {
 	create: () -> T,
 }
 
+export type LifeCylceDef = {
+	Init: () -> (),
+	Start: () -> (),
+	Destroy: (() -> ())?,
+}
+
+export type ResolveDirOptions = {
+	allowMissingDestroyFunction: boolean? --// a bit awkward but its the best name I could think of
+}
+
 export type ContainerType = {
 	Resolve: <T>(self: ContainerType, def: ServiceDef<T>) -> T,
 	Init: (self: ContainerType) -> (),
 	Start: (self: ContainerType) -> (),
+	ResolveDirectory: (self: ContainerType, directory: Folder) -> (),
 	Destroy: (self: ContainerType) -> (),
 	_initService: (self: ContainerType, def: any) -> (),
 	_run: (self: ContainerType, def: any, method: "Init" | "Start" | "Destroy") -> (),
@@ -96,6 +107,8 @@ function Container:_run(def: any, method: "Init" | "Start" | "Destroy")
 	elseif method == "Destroy" then
 		if type(service.Destroy) == "function" then
 			service.Destroy(service)
+		else
+			warn("No Destroy method found!") --// this sucks.
 		end
 	end
 end
@@ -123,6 +136,35 @@ function Container.Start(self: ContainerType)
 
 	for _, def in self._queue do
 		Container._run(self, def, "Start")
+	end
+end
+
+--[=[
+	Resolves every controller/service directly inside target directory.
+]=]
+function Container.ResolveDirectory(self: ContainerType, directory: Folder, options: ResolveDirOptions)
+	if typeof(directory) ~= "Instance" or not directory:IsA("Folder") then
+		return
+	end
+
+	for _, module in directory:GetChildren() do
+		if not module:IsA("ModuleScript") then
+			warn(`[Container] Encountered a Non-ModuleScript in a directory! \n Path: {module:GetFullName()}`)
+			continue
+		end
+
+		local moduleDef = require(module) :: LifeCylceDef
+		if type(moduleDef) ~= "table" then
+			warn(`[Container] A module did not return a table! \n Path: {module:GetFullName()}`)
+			continue
+		end
+		
+		assert(type(moduleDef.Init) == "function", `[Container] Missing Init function! \n Path: {module:GetFullName()}`)
+		assert(type(moduleDef.Start) == "function", `[Container] Missing Start function! \n Path: {module:GetFullName()}`)
+
+		if type(moduleDef.Destroy) ~= "function" and not options.allowMissingDestroyFunction then
+			warn(`[Container] Missing Start function! \n Path: {module:GetFullName()}`)
+		end
 	end
 end
 
