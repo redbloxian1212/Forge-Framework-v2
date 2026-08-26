@@ -147,6 +147,10 @@ function Container.ResolveDirectory(self: ContainerType, directory: Folder, opti
 		return
 	end
 
+	if type(options) ~= "table" then
+		options = {}
+	end
+
 	for _, module in directory:GetChildren() do
 		if not module:IsA("ModuleScript") then
 			warn(`[Container] Encountered a Non-ModuleScript in a directory! \n Path: {module:GetFullName()}`)
@@ -161,7 +165,7 @@ function Container.ResolveDirectory(self: ContainerType, directory: Folder, opti
 		
 		assert(type(moduleDef.Init) == "function", `[Container] Missing Init function! \n Path: {module:GetFullName()}`)
 		assert(type(moduleDef.Start) == "function", `[Container] Missing Start function! \n Path: {module:GetFullName()}`)
-
+		
 		if type(moduleDef.Destroy) ~= "function" and not options.allowMissingDestroyFunction then
 			warn(`[Container] Missing Start function! \n Path: {module:GetFullName()}`)
 		end
