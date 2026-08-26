@@ -12,9 +12,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Container = require(ReplicatedStorage.Forge.Shared.Core.Container)
 local ServicesFolder = ServerScriptService.Forge.Services
 
-local core = Container.build()
+local container = Container.build()
 
-core:Init()
-core:Start()
+container:Init()
+container:Start()
 
 print(`Running ForgeV2 🔨`)
