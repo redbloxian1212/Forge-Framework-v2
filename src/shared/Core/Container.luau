@@ -1,5 +1,15 @@
 --!strict
 
+--[=[
+	@class Container
+
+	Author: src | redbloxian1212
+    Created: 05/26/2026 (MM/DD/YYYY)
+    Discord: src.dev
+
+	Description: Skibidi dop dop dop yes yes
+]=]
+
 local Container = {}
 Container.__index = Container
 
