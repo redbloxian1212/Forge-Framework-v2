@@ -8,9 +8,10 @@ export type ServiceDef<T> = {
 }
 
 export type LifeCylceDef = {
-	Init: () -> (),
-	Start: () -> (),
-	Destroy: (() -> ())?,
+	create: () -> any, --// I just wanted to silence the type checker lol
+	Init: (self: any, container: ContainerType) -> (),
+	Start: (self: any) -> (),
+	Destroy: ((self: any) -> ())?,
 }
 
 export type ResolveDirOptions = {
@@ -21,7 +22,7 @@ export type ContainerType = {
 	Resolve: <T>(self: ContainerType, def: ServiceDef<T>) -> T,
 	Init: (self: ContainerType) -> (),
 	Start: (self: ContainerType) -> (),
-	ResolveDirectory: (self: ContainerType, directory: Folder) -> (),
+	ResolveDirectory: (self: ContainerType, directory: Folder, options: ResolveDirOptions) -> (),
 	Destroy: (self: ContainerType) -> (),
 	_initService: (self: ContainerType, def: any) -> (),
 	_run: (self: ContainerType, def: any, method: "Init" | "Start" | "Destroy") -> (),
@@ -167,8 +168,10 @@ function Container.ResolveDirectory(self: ContainerType, directory: Folder, opti
 		assert(type(moduleDef.Start) == "function", `[Container] Missing Start function! \n Path: {module:GetFullName()}`)
 		
 		if type(moduleDef.Destroy) ~= "function" and not options.allowMissingDestroyFunction then
-			warn(`[Container] Missing Start function! \n Path: {module:GetFullName()}`)
+			warn(`[Container] Missing Destroy function! \n Path: {module:GetFullName()}`)
 		end
+
+		self:Resolve(moduleDef)
 	end
 end
 
