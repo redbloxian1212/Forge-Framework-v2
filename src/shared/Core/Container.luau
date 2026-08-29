@@ -1,15 +1,16 @@
 --!strict
 
+--[[
+    Author: src | redbloxian1212
+    Created: 08/29/2026 (MM/DD/YYYY)
+    Discord: src.dev
+]]
+
 --[=[
 	@class Container
 
-	Author: src | redbloxian1212
-    Created: 05/26/2026 (MM/DD/YYYY)
-    Discord: src.dev
-
 	Description: Skibidi dop dop dop yes yes
 ]=]
-
 local Container = {}
 Container.__index = Container
 
@@ -25,7 +26,7 @@ export type LifeCylceDef = {
 }
 
 export type ResolveDirOptions = {
-	allowMissingDestroyFunction: boolean? --// a bit awkward but its the best name I could think of
+	allowMissingDestroyFunction: boolean?, --// a bit awkward but its the best name I could think of
 }
 
 export type ContainerType = {
@@ -173,10 +174,13 @@ function Container.ResolveDirectory(self: ContainerType, directory: Folder, opti
 			warn(`[Container] A module did not return a table! \n Path: {module:GetFullName()}`)
 			continue
 		end
-		
+
 		assert(type(moduleDef.Init) == "function", `[Container] Missing Init function! \n Path: {module:GetFullName()}`)
-		assert(type(moduleDef.Start) == "function", `[Container] Missing Start function! \n Path: {module:GetFullName()}`)
-		
+		assert(
+			type(moduleDef.Start) == "function",
+			`[Container] Missing Start function! \n Path: {module:GetFullName()}`
+		)
+
 		if type(moduleDef.Destroy) ~= "function" and not options.allowMissingDestroyFunction then
 			warn(`[Container] Missing Destroy function! \n Path: {module:GetFullName()}`)
 		end
