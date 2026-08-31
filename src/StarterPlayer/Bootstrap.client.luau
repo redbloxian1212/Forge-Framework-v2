@@ -9,7 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- CORE --
 ------------------------------
 local Container = require(ReplicatedStorage.Forge.Shared.Core.Container)
-local Core = ReplicatedStorage.Forge.Client.Core
+local Core = ReplicatedStorage.Forge.Client.Controllers.Core
 local ControllersFolder = ReplicatedStorage.Forge.Client.Controllers
 
 local container = Container.build()
@@ -18,6 +18,8 @@ local container = Container.build()
 container:Resolve(require(Core.DataController))
 container:Resolve(require(Core.ToolController))
 container:Resolve(require(Core.UiController))
+
+container:ResolveDirectory(ControllersFolder, {})
 
 container:Init()
 container:Start()
