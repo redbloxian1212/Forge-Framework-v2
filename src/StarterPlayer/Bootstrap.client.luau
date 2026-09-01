@@ -9,17 +9,17 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- CORE --
 ------------------------------
 local Container = require(ReplicatedStorage.Forge.Shared.Core.Container)
-local Core = ReplicatedStorage.Forge.Client.Controllers.Core
-local ControllersFolder = ReplicatedStorage.Forge.Client.Controllers
+local Component = require(ReplicatedStorage.Forge.Shared.Core.Component)
+local ForgeClient = ReplicatedStorage.Forge.Client
 
 local container = Container.build()
 
---// Resolve Core Controllers
-container:Resolve(require(Core.DataController))
-container:Resolve(require(Core.ToolController))
-container:Resolve(require(Core.UiController))
+--// Resolve Controllers
+container:ResolveDirectory(ForgeClient.Controllers.Core, { allowMissingDestroyFunction = true })
+container:ResolveDirectory(ForgeClient.Controllers.Game, { allowMissingDestroyFunction = true })
 
-container:ResolveDirectory(ControllersFolder, {})
+--// Load Components
+Component.LoadDirectory(ForgeClient.Components)
 
 container:Init()
 container:Start()
