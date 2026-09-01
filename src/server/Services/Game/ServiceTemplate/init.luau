@@ -23,7 +23,7 @@ end
 --[=[
 	Called by the container during the Init lifecycle stage. Resolves
 	dependencies and sets up initial state. Should not rely on other
-	services being started yet.
+	services being started yet. Setup here, no logic
 
 	@param container ContainerType -- The DI container used to resolve dependencies
 ]=]
@@ -34,19 +34,22 @@ end
 
 --[=[
 	Called by the container during the Start lifecycle stage, after all
-	services have been initialized. Hooks into PlayerAdded to load data
-	for joining players.
+	services have been initialized. Put logic here
 ]=]
 function ServiceTemplate.Start(self: ServiceTemplate)
-	--// Demo purposes only, use observers for such cases in production.
-	game.Players.PlayerAdded:Connect(function(player: Player)
-		local data = self._dataService:GetData(player)
-		if not data then
-			warn(`Failed to load data for {player.Name}!`)
-			return
-		end
+	--// Example of using the DataService to observe player data changes
+	--// In production I usually put observers under "DEPENDENCIES" section, I just did this here for demonstration purposes
+	local Observers = require(game:GetService("ReplicatedStorage").Packages.Observers)
+	Observers.observePlayer(function(player: Player)
+		self._dataService
+			:GetDataAsync(player)
+			:andThen(function(data: PlayerData)
+				print(`{player.Name} joined with data: `, { data })
+			end)
+			:catch(function(err)
+				warn(`Failed to get data for {player.Name}: {err}`)
+			end)
 
-		print(`{player.Name} joined with data: {player.Name}: {data}`)
 		self._latestPlayer = player
 	end)
 end
