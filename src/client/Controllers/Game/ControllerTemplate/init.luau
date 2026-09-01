@@ -38,13 +38,14 @@ end
 	are ready to use here.
 ]=]
 function ControllerTemplate.Start(self: ControllerTemplate)
+	self._dataController.OnDataReady:Wait()
 	local data = self._dataController:GetData()
 	if not data then
 		warn(`Failed to get data!`)
 		return
 	end
 
-	print(`Received data: {data}`)
+	print(`Received data:`, data)
 	print(`My variable: {self._myVariable}`)
 end
 
