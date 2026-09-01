@@ -42,7 +42,7 @@ function ServiceTemplate.Start(self: ServiceTemplate)
 	game.Players.PlayerAdded:Connect(function(player: Player)
 		local data = self._dataService:GetData(player)
 		if not data then
-			player:Kick(`Failed to load your data!`)
+			warn(`Failed to load data for {player.Name}!`)
 			return
 		end
 
