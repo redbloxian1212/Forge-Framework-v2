@@ -98,7 +98,7 @@ function DataService.GetDataAsync(self: DataService, player: Player): any
 		return Promise.resolve(PlayerReplicas[player].Data)
 	end
 
-	return Promise.new(function(resolve, reject, onCancel)
+	local loadPromise = Promise.new(function(resolve, reject, onCancel)
 		local profileConnection: any
 		local unloadConnection: any
 
@@ -129,6 +129,13 @@ function DataService.GetDataAsync(self: DataService, player: Player): any
 
 		onCancel(Cleanup)
 	end)
+
+	return Promise.race({
+		loadPromise,
+		Promise.delay(10):andThen(function()
+			return Promise.reject(`[DataService] Timed out waiting for {player.Name}'s profile to load!`)
+		end),
+	})
 end
 
 function DataService.GetData(_self: DataService, player: Player): PlayerData?
